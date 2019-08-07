@@ -3,36 +3,62 @@
     ref="outer"
     class="outer"
     v-on:scroll.native="handleScrollOuter"
+    v-bind:class="{ 'fixed-outer': contentInactive }"
     >
 
     <div class="map">
-      <div class="map-in-view">
+      <div 
+        class="map-in-view"
+        v-bind:style="{ height: 'calc(198px + ' + screenOffset + 'px' }"
+      >
         <div class="marker"></div>
       </div>
     </div>
 
-    <div class="box elevation2 header">
+    <div 
+      class="header"
+      v-bind:class="{ 'header-fullscreen': fullScreen }"
+    >
       <div class="header-content"></div>
       <p>{{number}}</p>
     </div>
 
     <div 
       class="content-wrapper" 
-      ref="inner"
       >
 
       <div 
-        class="content box elevation2-reversed"
-        v-bind:class="{ 'content-active': contentActive }"
+        class="content"
+        v-bind:class="{ 'content-inactive': contentInactive }"
+        v-bind:style="{ transform: 'translateY(' + screenOffset + 'px' }"
+        ref="content"
       >
-        <div class="content-toggle">
-          <div class="content-toggle-icon"></div>
+        
+        <div class="content-header">
+          <div 
+            v-on:click="toggleContentActive"
+            class="content-toggle elevation2-reversed"
+            >
+            <div class="content-toggle-icon"></div>
+          </div>
+
+          <div 
+            class="content-actions content-inner"
+            ref="actions"
+          >
+            <div class="action"></div>
+             <div class="action"></div>
+          </div>
         </div>
-        <div class="title"></div>
-        <div class="icon"></div>
-        <div class="content-group">
+
+        <div class="content-inner">
+          <div class="title"></div>
+          <div class="icon"></div>
+          <div class="content-group">
           <div v-for="n in 24" class="content-line">{{n}}</div>
         </div>
+        </div>
+
       </div>
 
     </div>
@@ -48,7 +74,9 @@ export default {
   },
   data: function () {
     return {
-      contentActive: true,
+      contentInactive: false,
+      fullScreen: false,
+      screenOffset: 0,
       number: 0
     }
   },
@@ -60,12 +88,38 @@ export default {
     handleScrollOuter() {
 
       this.number = this.$refs.outer.scrollTop;
-      if (this.number >= 228) {
+      if (this.number >= 198) {
         // swap to full screen condition
         this.fullScreen = true;
       } else {
         // swap to normal condition
         this.fullScreen = false;
+      }
+    },
+    toggleContentActive() {
+
+      if (this.contentInactive === false) {
+        //add translate attribute
+      
+        if (this.$refs.outer.scrollTop > 0) {
+          //animate scroll area to zero
+          this.$refs.outer.scrollTo( 0 , 0 );
+        }
+
+        let distanceToElementBottom = window.innerHeight - this.$refs.actions.getBoundingClientRect().bottom;
+
+        console.log(distanceToElementBottom);
+
+        this.screenOffset = distanceToElementBottom;
+
+        this.contentInactive = true;
+
+      } else {
+        //remove translate attribute
+
+        this.screenOffset = 0;
+
+        this.contentInactive = false;
       }
     }
   }
@@ -87,24 +141,31 @@ export default {
     bottom: 0;
   }
 
+  .fixed-outer {
+    overflow: hidden;
+  }
+
   .content-wrapper {
-    position: absolute;
-    width: 100%;
-    height: 100%;
     pointer-events: none;
+    position: relative;
   }
 
   .content {
-    position: relative;
-    padding: 0 20px 20px 20px;
-    height: 62%;
+    position: absolute;
+    top: calc(198px + 48px);
+    width: 100%;
     pointer-events: all;
+    transition: transform 0.3s ease;
+    background-color: #fff;
   }
 
-  .content-active {
-    /* top: calc(198px + 48px); */
-    /* (on wrapper) animate top margin */
+  .content-inner {
+    padding: 20px;
   }
+
+  /* .content-inactive {
+    transform: translateY(100%);
+  } */
 
 
   .map {
@@ -131,26 +192,57 @@ export default {
     background-color: #9b9b9b;
   }
 
+  .content-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ededed;
+  }
+
+  .action {
+    width: 100px;
+    height: 30px;
+    background-color: #ededed;
+  }
+
+  .action:first-child {
+    width: 160px;
+  }
+
+  .content-toggle {
+    height: 30px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .content-toggle-icon {
+    width: 15px;
+    height: 15px;
+    background-color: #ededed;
+  }
 
 
 
 
 
-  .box {
+
+  .elevation1 {
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.15),0 0 2px 0 rgba(0,0,0,.15);
     background-color: #fff;
     border-radius: 0px 0px 3px 3px;
   }
 
-  .elevation1 {
-    box-shadow: 0 1px 3px 0 rgba(0,0,0,.15),0 0 2px 0 rgba(0,0,0,.15);
-  }
-
   .elevation2 {
     box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
+    background-color: #fff;
+    border-radius: 0px 0px 3px 3px;
   }
 
   .elevation2-reversed {
-    box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
+    box-shadow: 0 -1px 2px 0 rgba(74, 74, 74, 0.1);
     border-radius: 3px 3px 0px 0px;
     background-color: #fff;
   }
@@ -164,6 +256,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
+    background-color: #fff;
+    border-radius: 0px 0px 3px 3px;
+  }
+
+  .header-fullscreen {
+    box-shadow: 0 0px 1px 0px rgba(74, 74, 74, 0.2);
+    border-radius: 0px;
   }
 
   .content-line {
@@ -184,22 +284,6 @@ export default {
     background-color: #ededed;
     width: 200px;
     margin-bottom: 20px
-  }
-
-    .content-toggle {
-    height: 30px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin-bottom: 20px;
-  }
-
-  .content-toggle-icon {
-    width: 15px;
-    height: 15px;
-    background-color: #ededed;
   }
 
 </style>
