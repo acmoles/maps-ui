@@ -243,7 +243,7 @@ export default {
 
   .elevation2-reversed {
     box-shadow: 0 -1px 2px 0 rgba(74, 74, 74, 0.1);
-    border-radius: 3px 3px 0px 0px;
+    border-radius: 6px 6px 0px 0px;
     background-color: #fff;
   }
 
@@ -258,7 +258,6 @@ export default {
     justify-content: space-between;
     box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
     background-color: #fff;
-    border-radius: 0px 0px 3px 3px;
   }
 
   .header-fullscreen {
