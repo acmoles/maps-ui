@@ -6,14 +6,9 @@
     v-bind:class="{ 'fixed-outer': contentInactive }"
     >
 
-    <div class="map">
-      <div 
-        class="map-in-view"
-        v-bind:style="{ height: 'calc(198px + ' + screenOffset + 'px' }"
-      >
-        <div class="marker"></div>
-      </div>
-    </div>
+    <Map 
+      v-bind:offset="screenOffset"
+    />
 
     <div 
       class="header"
@@ -67,8 +62,13 @@
 </template>
 
 <script>
+import Map from './Map.vue'
+
 export default {
   name: 'Scroller',
+  components: {
+    Map
+  },
   props: {
     msg: String
   },
@@ -168,29 +168,7 @@ export default {
   } */
 
 
-  .map {
-    background-color: #d7d7d7;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
 
-  .map-in-view {
-    position: relative;
-    top: 48px;
-    height: 198px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .marker {
-    width: 15px;
-    height: 30px;
-    background-color: #9b9b9b;
-  }
 
   .content-actions {
     display: flex;
