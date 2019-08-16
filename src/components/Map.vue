@@ -25,7 +25,7 @@
     
     <div 
     class="map-viewport"
-    v-bind:style="{ height: 198 + (contentActive ? 0 : offset) + 'px', top: (contentActive ? offset + 48 : 48) + 'px' }"
+    v-bind:style="{ height: 198 + (contentActive ? 0 : offset) + 'px' }"
     >
         <div v-on:click.capture="controlsClick" class="controls"></div>
     </div>
@@ -59,9 +59,9 @@ export default {
     },
     contentActive: function (oldBoolean, newBoolean) {
         if (newBoolean === true) {
-            this.moveToActive();
-        } else {
             this.moveToInactive();
+        } else {
+            this.moveToActiveAlt();
         }
     }
   },
@@ -87,10 +87,16 @@ export default {
         this.panzoomInstance.smoothZoom(x, y, scale);
     },
     moveToActive() {
+        console.log('move to active');
         this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48)/2));
     },
+    moveToActiveAlt() {
+        console.log('move to active');
+        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48)/2) + this.offset);
+    },
     moveToInactive() {
-        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48 - this.offset)/2));
+        console.log('move to inactive');
+        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48 + this.offset)/2));
     }
    },
 }
@@ -116,7 +122,7 @@ export default {
   }
 
   .map-viewport {
-    position: absolute;
+    position: fixed;
     top: 48px;
     left: 0;
     right: 0;
