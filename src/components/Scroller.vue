@@ -95,6 +95,10 @@ export default {
         // swap to normal condition
         this.fullScreen = false;
       }
+
+      // TODO another check to see if toggleContentActive happens
+      // Don't recentre map though...
+      // Allow scroll down to screenOffset - space above?
     },
     toggleContentActive() {
 
