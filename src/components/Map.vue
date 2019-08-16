@@ -4,6 +4,7 @@
     <div 
     class="map-tiles"
     ref="panmap"
+    v-bind:style="{ transition: isAnimatingMap ? 'transform 0.3s ease' : 'none' }"
     >
         <div class="map-tiles-inner">
             <svg width="2000px" height="2004px" viewBox="0 0 2000 2004" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -12,7 +13,7 @@
                 </g>
                 
 
-            <path d="M1000.5,1039 C1009.5,1027.88161 1014,1019.91226 1014,1015.09194 C1014,1007.86146 1007.95584,1002 1000.5,1002 C993.044156,1002 987,1007.86146 987,1015.09194 C987,1019.91226 991.5,1027.88161 1000.5,1039 Z" id="Oval"></path>
+            <path d="M1000.5,1039 C1009.5,1027.88161 1014,1019.91226 1014,1015.09194 C1014,1007.86146 1007.95584,1002 1000.5,1002 C993.044156,1002 987,1007.86146 987,1015.09194 C987,1019.91226 991.5,1027.88161 1000.5,1039 Z" ref="oval" id="Oval"></path>
 
             </svg>
             <!-- <div 
@@ -46,6 +47,7 @@ export default {
   data: function () {
     return {
       panzoomInstance: null,
+      isAnimatingMap: false
     }
   },
   watch: {
@@ -58,10 +60,19 @@ export default {
         }
     },
     contentActive: function (oldBoolean, newBoolean) {
-        if (newBoolean === true) {
-            this.moveToInactive();
-        } else {
-            this.moveToActiveAlt();
+        if (this.isElementInViewport(this.$refs.oval)) {
+            setTimeout(() => {
+                this.isAnimatingMap = true;
+                // Simulate map delayed update animation
+                if (newBoolean === true) {
+                    this.moveToInactive();
+                } else {
+                    this.moveToActiveAlt();
+                }
+                setTimeout(() => {
+                    this.isAnimatingMap = false;
+                }, 600)
+            }, 1000);
         }
     }
   },
@@ -83,20 +94,40 @@ export default {
     moveTo(x, y) {
         this.panzoomInstance.moveTo(x, y);
     },
-    smoothZoom(x, y, scale) {
-        this.panzoomInstance.smoothZoom(x, y, scale);
+    zoom(x, y, scale) {
+        this.panzoomInstance.zoomAbs(x, y, scale);
     },
     moveToActive() {
         console.log('move to active');
         this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48)/2));
     },
     moveToActiveAlt() {
+        let x = -1000 + (window.innerWidth/2);
+        let y = -1000 + ((198 + 48)/2) + this.offset;
+
+        this.zoom(x, y, 1);
+        this.moveTo(x, y);
+
         console.log('move to active');
-        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48)/2) + this.offset);
     },
     moveToInactive() {
+        let x = -1000 + (window.innerWidth/2);
+        let y = -1000 + ((198 + 48 + this.offset)/2);
+
+        this.zoom(x, y, 1);
+        this.moveTo(x, y);
+
         console.log('move to inactive');
-        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48 + this.offset)/2));
+    },
+    isElementInViewport(el) {
+        var rect = el.getBoundingClientRect();
+
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
     }
    },
 }

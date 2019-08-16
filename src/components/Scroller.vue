@@ -34,7 +34,10 @@
             v-on:click="toggleContentActive"
             class="content-toggle elevation2-reversed"
             >
-            <div class="content-toggle-icon"></div>
+            <div 
+              class="content-toggle-icon"
+              v-bind:style="{ transform: contentActive ? 'rotate(0deg)' : 'rotate(180deg)' }"
+            ></div>
           </div>
 
           <div 
@@ -209,9 +212,12 @@ export default {
   }
 
   .content-toggle-icon {
-    width: 15px;
-    height: 15px;
-    background-color: #ededed;
+      width: 0; 
+      height: 0; 
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 15px solid #ededed;
+      transition: transform 0.3s ease;
   }
 
 
