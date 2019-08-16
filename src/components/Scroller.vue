@@ -3,11 +3,12 @@
     ref="outer"
     class="outer"
     v-on:scroll.native="handleScrollOuter"
-    v-bind:class="{ 'fixed-outer': contentInactive }"
+    v-bind:style="{ 'scroll-snap-points-y': screenOffset + 'px', 'scroll-behavior': initialised ? 'smooth' : 'auto' }"
     >
 
     <Map 
       v-bind:offset="screenOffset"
+      v-bind:contentActive="contentActive"
     />
 
     <div 
@@ -24,8 +25,7 @@
 
       <div 
         class="content"
-        v-bind:class="{ 'content-inactive': contentInactive }"
-        v-bind:style="{ transform: 'translateY(' + screenOffset + 'px' }"
+        v-bind:style="{ top: screenOffset + 198 + 48 + 'px' }"
         ref="content"
       >
         
@@ -74,21 +74,26 @@ export default {
   },
   data: function () {
     return {
-      contentInactive: false,
+      initialised: false,
+      contentActive: true,
       fullScreen: false,
       screenOffset: 0,
-      number: 0
+      number: 0,
+      scrollSnapInstance: null
     }
   },
   mounted() {
     this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
-
+    this.getOffset();
+    this.$refs.outer.scrollTo( 0 , this.screenOffset );
+    this.initialised = true;
   },
   methods: {
     handleScrollOuter() {
 
       this.number = this.$refs.outer.scrollTop;
-      if (this.number >= 198) {
+
+      if (this.number >= 198 + this.screenOffset) {
         // swap to full screen condition
         this.fullScreen = true;
       } else {
@@ -96,34 +101,36 @@ export default {
         this.fullScreen = false;
       }
 
+      if (this.number == 0) {
+        this.contentActive = false;
+      }
+      // } else if (this.number > this.screenOffset) {
+      //   this.contentActive = true;
+      // }
+
+      // TODO scroll is near offset, then animate to offset
+      // TODO when scroll hits offset then recentre map
+
       // TODO another check to see if toggleContentActive happens
+      // toggle does smooth scroll to screenOffset
       // Don't recentre map though...
-      // Allow scroll down to screenOffset - space above?
     },
-    toggleContentActive() {
-
-      if (this.contentInactive === false) {
-        //add translate attribute
-      
-        if (this.$refs.outer.scrollTop > 0) {
-          //animate scroll area to zero
-          this.$refs.outer.scrollTo( 0 , 0 );
-        }
-
+    getOffset() {
         let distanceToElementBottom = window.innerHeight - this.$refs.actions.getBoundingClientRect().bottom;
 
-        console.log(distanceToElementBottom);
+        console.log('offset: ', distanceToElementBottom);
 
         this.screenOffset = distanceToElementBottom;
 
-        this.contentInactive = true;
-
+        // TODO re-get offset on window height change
+    },
+    toggleContentActive() {
+      if (this.contentActive) {
+        this.$refs.outer.scrollTo( 0 , 0 );
+        this.contentActive = false;
       } else {
-        //remove translate attribute
-
-        this.screenOffset = 0;
-
-        this.contentInactive = false;
+        this.$refs.outer.scrollTo( 0 , this.screenOffset );
+        this.contentActive = true;
       }
     }
   }
@@ -138,6 +145,8 @@ export default {
 
   .outer {
     overflow: scroll;
+    scroll-snap-type: y proximity;
+    -webkit-overflow-scrolling: touch;
     position: absolute;
     top: 0;
     left: 0;
@@ -156,7 +165,6 @@ export default {
 
   .content {
     position: absolute;
-    top: calc(198px + 48px);
     width: 100%;
     pointer-events: all;
     transition: transform 0.3s ease;
