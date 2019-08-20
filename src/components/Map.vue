@@ -23,13 +23,6 @@
             ></div> -->
         </div>
     </div>
-    
-    <div 
-    class="map-viewport"
-    v-bind:style="{ height: 198 + (contentActive ? 0 : offset) + 'px' }"
-    >
-        <div v-on:click.capture="controlsClick" class="controls"></div>
-    </div>
       
     </div>
 </template>
@@ -88,9 +81,6 @@ export default {
 
   },
     methods: {
-    controlsClick() {
-        console.log('controls');
-    },
     moveBy(x, y) {
         this.panzoomInstance.moveBy(x, y);
     },
@@ -101,7 +91,7 @@ export default {
         this.panzoomInstance.zoomAbs(x, y, scale);
     },
     moveToActive() {
-        console.log('move to active');
+        console.log('MAP: move to active');
         this.moveTo(-1000 + (this.width/2), -1000 + 198);
     },
     moveToActiveAlt() {
@@ -111,7 +101,7 @@ export default {
         this.zoom(x, y, 1);
         this.moveTo(x, y);
 
-        console.log('move to active alt');
+        console.log('MAP: move to active alt');
     },
     moveToInactive() {
         let x = -1000 + (this.width/2);
@@ -120,7 +110,7 @@ export default {
         this.zoom(x, y, 1);
         this.moveTo(x, y);
 
-        console.log('move to inactive');
+        console.log('MAP: move to inactive');
     },
     isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
@@ -153,32 +143,6 @@ export default {
     position: relative;
     width: 2000px;
     height: 2000px;
-  }
-
-  .map-viewport {
-    position: fixed;
-    top: 48px;
-    left: 0;
-    right: 0;
-  }
-
-  .marker {
-    position: absolute;
-    width: 15px;
-    height: 30px;
-    background-color: #9b9b9b;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .controls {
-    width: 30px;
-    height: 60px;
-    background-color: #9b9b9b;
-    position: absolute;
-    top: 20px;
-    right: 20px;
   }
 
 

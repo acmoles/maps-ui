@@ -1,6 +1,23 @@
 <template>
   <div id="app">
-    <Scroller/>
+    <div 
+      class="header"
+      v-bind:class="{ 'header-fullscreen': fullScreen }"
+    >
+      <div class="header-content"></div>
+      <p>{{scrollNumber}}</p>
+    </div>
+
+    <div 
+    class="map-viewport"
+    >
+        <div v-on:click.capture="controlsClick" class="controls"></div>
+    </div>
+
+    <Scroller
+        v-on:scroll="scrollNumber = $event"
+        v-on:fullscreen="fullScreen = $event"
+    />
   </div>
 </template>
 
@@ -11,11 +28,26 @@ export default {
   name: 'app',
   components: {
     Scroller
+  },
+  data: function () {
+    return {
+        scrollNumber: 0,
+        fullScreen: false,
+    }
+  },
+  methods: {
+      controlsClick() {
+        console.log('controls');
+    },
   }
 }
 </script>
 
 <style>
+
+body {
+    background: #2e2e2e;
+}
 
 
 #app {
@@ -29,7 +61,8 @@ export default {
     top: 0;
     bottom: 0;
     max-width: 420px;
-    max-height: 820px;
+    max-height: 830px;
+    overflow: hidden;
 }
 
 /*
@@ -187,5 +220,66 @@ select:-moz-focusring {
 body {
 	box-sizing: border-box;
 }
+
+
+
+
+
+  .header {
+    height: 48px;
+    padding: 0px 20px;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
+    background-color: #fff;
+    z-index: 3;
+  }
+
+  .header-fullscreen {
+    box-shadow: 0 0px 1px 0px rgba(74, 74, 74, 0.2);
+    border-radius: 0px;
+  }
+
+  .header-content {
+    background-color: #ededed;
+    height: 20px;
+    width: 140px;
+  }
+
+
+
+  .map-viewport {
+    position: absolute;
+    top: 48px;
+    height: 198px;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  .marker {
+    position: absolute;
+    width: 15px;
+    height: 30px;
+    background-color: #9b9b9b;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .controls {
+    width: 30px;
+    height: 60px;
+    background-color: #9b9b9b;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    pointer-events: all;
+    z-index: 1;
+  }
 
 </style>

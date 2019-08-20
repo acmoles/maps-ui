@@ -16,25 +16,18 @@
 
     <div
       class="actions-spacer spacer"
-      v-bind:style="{ height: actionsHeight + 'px', top: windowHeight + 'px' }"
+      v-bind:class="{ snap: initialised }"
+      v-bind:style="{ height: actionsHeight + 'px', top: height + 'px' }"
     ></div>
 
     <div
       class="map-port-spacer spacer"
-      v-bind:style="{ height: screenOffset + 'px', top: (windowHeight + actionsHeight) + 'px' }"
+      v-bind:style="{ height: screenOffset + 'px', top: (height + actionsHeight) + 'px' }"
     ></div>
 
     <div 
-      class="header"
-      v-bind:class="{ 'header-fullscreen': fullScreen }"
-    >
-      <div class="header-content"></div>
-      <p>{{scrollNumber}}</p>
-    </div>
-
-    <div 
       class="content"
-      v-bind:style="{ top: screenOffset + actionsHeight + 198 + 48 + 'px' }"
+      v-bind:style="{ top: screenOffset + actionsHeight + 'px' }"
       ref="content"
     >
       
@@ -88,7 +81,6 @@ export default {
       fullScreen: false,
       screenOffset: 0,
       actionsHeight: 0,
-      windowHeight: 0,
       scrollNumber: 0,
     }
   },
@@ -96,9 +88,14 @@ export default {
     this.width = this.$refs.outer.offsetWidth;
     this.height = this.$refs.outer.offsetHeight;
 
+    console.log('width: ', this.width);
+    console.log('height: ', this.height);
+
     this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
     this.getOffset();
-    this.$refs.outer.scrollTo( 0 , this.screenOffset + this.actionsHeight );
+    let scrollTo = (this.screenOffset + this.actionsHeight) - (198 + 48);
+    console.log('scroll to: ', scrollTo);
+    this.$refs.outer.scrollTo( 0 , scrollTo );
     this.initialised = true;
   },
   methods: {
@@ -106,12 +103,16 @@ export default {
 
       this.scrollNumber = this.$refs.outer.scrollTop;
 
-      if (this.scrollNumber >= 198 + this.screenOffset) {
+      this.$emit('scroll', this.scrollNumber);
+
+      if (this.scrollNumber >= this.actionsHeight + this.screenOffset - 48) {
         // swap to full screen condition
         this.fullScreen = true;
+        this.$emit('fullscreen', this.fullScreen);
       } else {
         // swap to normal condition
         this.fullScreen = false;
+        this.$emit('fullscreen', this.fullScreen);
       }
 
       if (this.scrollNumber == 0) {
@@ -126,10 +127,8 @@ export default {
 
         // Update to relative to parent
         let parentRect = this.$refs.outer.getBoundingClientRect();
-        let relativeBottom = actionsRect.bottom - parentRect.bottom;
-        console.log('relative bottom,', relativeBottom);
+        let relativeBottom = actionsRect.bottom - parentRect.top;
         let relativeTop = actionsRect.top - parentRect.top;
-        console.log('relative top,', relativeTop);
 
         let heightActions = relativeBottom - relativeTop;
         let distanceToElementBottom = this.height - relativeBottom;
@@ -139,16 +138,18 @@ export default {
 
         this.screenOffset = distanceToElementBottom;
         this.actionsHeight = heightActions;
-        this.windowHeight = this.height;
 
         // TODO re-get offset on window height change
     },
     toggleContentActive() {
       if (this.contentActive) {
+        console.log('scroll to: ', 0);
         this.$refs.outer.scrollTo( 0 , 0 );
         this.contentActive = false;
       } else {
-        this.$refs.outer.scrollTo( 0 , this.screenOffset + this.actionsHeight );
+        let scrollTo = (this.screenOffset + this.actionsHeight) - (198 + 48);
+        console.log('scroll to: ', scrollTo);
+        this.$refs.outer.scrollTo( 0 , scrollTo );
         this.contentActive = true;
       }
     }
@@ -185,6 +186,9 @@ export default {
     pointer-events: none;
     position: absolute;
     width: 100%;
+  }
+
+  .snap {
     scroll-snap-align: end;
   }
 
@@ -194,6 +198,7 @@ export default {
     pointer-events: all;
     transition: transform 0.3s ease;
     background-color: #fff;
+    z-index: 2;
   }
 
   .content-inner {
@@ -272,35 +277,11 @@ export default {
     background-color: #fff;
   }
 
-  .header {
-    height: 48px;
-    padding: 0px 20px;
-    position: fixed;
-    width: 100%;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 5px 0 rgba(74, 74, 74, 0.2);
-    background-color: #fff;
-  }
-
-  .header-fullscreen {
-    box-shadow: 0 0px 1px 0px rgba(74, 74, 74, 0.2);
-    border-radius: 0px;
-  }
-
   .content-line {
     height: 20px;
     background-color: #ededed;
     margin-bottom: 15px;
     color: #ededed;
-  }
-
-  .header-content {
-    background-color: #ededed;
-    height: 20px;
-    width: 140px;
   }
 
   .title {
