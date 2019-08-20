@@ -9,6 +9,8 @@
     <Map 
       v-bind:offset="screenOffset"
       v-bind:actions="actionsHeight"
+      v-bind:width="width"
+      v-bind:height="height"
       v-bind:contentActive="contentActive"
     />
 
@@ -77,11 +79,10 @@ export default {
   components: {
     Map
   },
-  props: {
-    msg: String
-  },
   data: function () {
     return {
+      width: 0,
+      height: 0,
       initialised: false,
       contentActive: true,
       fullScreen: false,
@@ -92,6 +93,9 @@ export default {
     }
   },
   mounted() {
+    this.width = this.$refs.outer.offsetWidth;
+    this.height = this.$refs.outer.offsetHeight;
+
     this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
     this.getOffset();
     this.$refs.outer.scrollTo( 0 , this.screenOffset + this.actionsHeight );
@@ -119,15 +123,23 @@ export default {
     },
     getOffset() {
         let actionsRect = this.$refs.actions.getBoundingClientRect();
-        let heightActions = actionsRect.bottom - actionsRect.top;
-        let distanceToElementBottom = window.innerHeight - actionsRect.bottom;
+
+        // Update to relative to parent
+        let parentRect = this.$refs.outer.getBoundingClientRect();
+        let relativeBottom = actionsRect.bottom - parentRect.bottom;
+        console.log('relative bottom,', relativeBottom);
+        let relativeTop = actionsRect.top - parentRect.top;
+        console.log('relative top,', relativeTop);
+
+        let heightActions = relativeBottom - relativeTop;
+        let distanceToElementBottom = this.height - relativeBottom;
 
         console.log('actions height: ', heightActions);
         console.log('offset: ', distanceToElementBottom);
 
         this.screenOffset = distanceToElementBottom;
         this.actionsHeight = heightActions;
-        this.windowHeight = window.innerHeight;
+        this.windowHeight = this.height;
 
         // TODO re-get offset on window height change
     },

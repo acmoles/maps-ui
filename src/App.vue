@@ -23,6 +23,13 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2e2e2e;
+
+    position: absolute;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    max-width: 420px;
+    max-height: 820px;
 }
 
 /*

@@ -43,6 +43,8 @@ export default {
   props: {
     offset: Number,
     actions: Number,
+    width: Number,
+    height: Number,
     contentActive: Boolean
   },
   data: function () {
@@ -100,10 +102,10 @@ export default {
     },
     moveToActive() {
         console.log('move to active');
-        this.moveTo(-1000 + (window.innerWidth/2), -1000 + 198);
+        this.moveTo(-1000 + (this.width/2), -1000 + 198);
     },
     moveToActiveAlt() {
-        let x = -1000 + (window.innerWidth/2);
+        let x = -1000 + (this.width/2);
         let y = -1000 + ((198 + 48)/2) + this.offset + this.actions;
 
         this.zoom(x, y, 1);
@@ -112,7 +114,7 @@ export default {
         console.log('move to active alt');
     },
     moveToInactive() {
-        let x = -1000 + (window.innerWidth/2);
+        let x = -1000 + (this.width/2);
         let y = -1000 + ((198 + 48 + this.offset + this.actions)/2);
 
         this.zoom(x, y, 1);
@@ -126,8 +128,8 @@ export default {
         return (
             rect.top >= 0 &&
             rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            rect.bottom <= (this.width) &&
+            rect.right <= (this.width)
         );
     }
    },
