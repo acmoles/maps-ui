@@ -65,6 +65,14 @@ body {
     overflow: hidden;
 }
 
+@media screen and (min-width: 421px) {
+    #app {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
 /*
 App reset by Ben Frain @benfrain / benfrain.com
 Latest: https://github.com/benfrain/app-reset

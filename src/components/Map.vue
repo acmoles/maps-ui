@@ -47,14 +47,6 @@ export default {
     }
   },
   watch: {
-    // whenever offset changes, this function will run
-    offset: function (oldOffset, newOffset) {
-        if (newOffset === 0) {
-            this.moveBy(0, oldOffset);
-        } else {
-            this.moveBy(0, -newOffset/2);
-        }
-    },
     contentActive: function (oldBoolean, newBoolean) {
         if (this.isElementInViewport(this.$refs.oval)) {
             setTimeout(() => {
@@ -63,7 +55,7 @@ export default {
                 if (newBoolean === true) {
                     this.moveToInactive();
                 } else {
-                    this.moveToActiveAlt();
+                    this.moveToActive();
                 }
                 setTimeout(() => {
                     this.isAnimatingMap = false;
@@ -77,8 +69,6 @@ export default {
         maxZoom: 2,
         minZoom: 0.25
         });
-    this.moveToActive();
-
   },
     methods: {
     moveBy(x, y) {
@@ -90,22 +80,25 @@ export default {
     zoom(x, y, scale) {
         this.panzoomInstance.zoomAbs(x, y, scale);
     },
-    moveToActive() {
-        console.log('MAP: move to active');
-        this.moveTo(-1000 + (this.width/2), -1000 + 198);
+    moveToActiveInitial(width, height, offset, actions) {
+        console.log('MAP: move to active initial');
+        let x = -1000 + width/2;
+        let y = -1000 + height - 192 + 48;
+        this.zoom(x, y, 1);
+        this.moveTo(x, y);
     },
-    moveToActiveAlt() {
-        let x = -1000 + (this.width/2);
-        let y = -1000 + ((198 + 48)/2) + this.offset + this.actions;
+    moveToActive() {
+        let x = -1000 + this.width/2;
+        let y = -1000 + this.height - 192 + 48;
 
         this.zoom(x, y, 1);
         this.moveTo(x, y);
 
-        console.log('MAP: move to active alt');
+        console.log('MAP: move to active');
     },
     moveToInactive() {
-        let x = -1000 + (this.width/2);
-        let y = -1000 + ((198 + 48 + this.offset + this.actions)/2);
+        let x = -1000 + this.width/2;
+        let y = -1000 + this.height/2;
 
         this.zoom(x, y, 1);
         this.moveTo(x, y);
@@ -118,8 +111,8 @@ export default {
         return (
             rect.top >= 0 &&
             rect.left >= 0 &&
-            rect.bottom <= (this.width) &&
-            rect.right <= (this.width)
+            rect.bottom <= (window.innerHeight) &&
+            rect.right <= (window.innerWidth)
         );
     }
    },

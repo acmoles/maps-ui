@@ -7,6 +7,7 @@
     >
 
     <Map 
+      ref="map"
       v-bind:offset="screenOffset"
       v-bind:actions="actionsHeight"
       v-bind:width="width"
@@ -55,7 +56,7 @@
         <div class="title"></div>
         <div class="icon"></div>
         <div class="content-group">
-        <div v-for="n in 24" class="content-line">{{n}}</div>
+        <div v-for="n in 48" class="content-line">{{n}}</div>
       </div>
       </div>
 
@@ -96,6 +97,9 @@ export default {
     let scrollTo = (this.screenOffset + this.actionsHeight) - (198 + 48);
     console.log('scroll to: ', scrollTo);
     this.$refs.outer.scrollTo( 0 , scrollTo );
+
+    // Finish initialisation
+    this.$refs.map.moveToActiveInitial(this.width, this.height, this.screenOffset, this.actionsHeight);
     this.initialised = true;
   },
   methods: {
