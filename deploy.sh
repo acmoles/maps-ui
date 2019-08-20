@@ -1,13 +1,21 @@
 #!/usr/bin/env sh
 
 # abort on errors
-set -e
+# set -e
 
 # build
 npm run build
 
 # navigate into the build output directory
 cd dist
+
+# add routing to deploy
+# setopt extendedglob
+
+mkdir v1
+
+# all except v1
+mv * ./v1
 
 # if you are deploying to a custom domain
 # echo 'www.example.com' > CNAME
