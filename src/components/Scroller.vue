@@ -3,60 +3,65 @@
     ref="outer"
     class="outer"
     v-on:scroll.native="handleScrollOuter"
-    v-bind:style="{ 'scroll-snap-points-y': screenOffset + 'px', 'scroll-behavior': initialised ? 'smooth' : 'auto' }"
+    v-bind:style="{ 'scroll-behavior': initialised ? 'smooth' : 'auto' }"
     >
 
     <Map 
       v-bind:offset="screenOffset"
+      v-bind:actions="actionsHeight"
       v-bind:contentActive="contentActive"
     />
+
+    <div
+      class="actions-spacer spacer"
+      v-bind:style="{ height: actionsHeight + 'px', top: windowHeight + 'px' }"
+    ></div>
+
+    <div
+      class="map-port-spacer spacer"
+      v-bind:style="{ height: screenOffset + 'px', top: (windowHeight + actionsHeight) + 'px' }"
+    ></div>
 
     <div 
       class="header"
       v-bind:class="{ 'header-fullscreen': fullScreen }"
     >
       <div class="header-content"></div>
-      <p>{{number}}</p>
+      <p>{{scrollNumber}}</p>
     </div>
 
     <div 
-      class="content-wrapper" 
-      >
-
-      <div 
-        class="content"
-        v-bind:style="{ top: screenOffset + 198 + 48 + 'px' }"
-        ref="content"
-      >
-        
-        <div class="content-header">
-          <div 
-            v-on:click="toggleContentActive"
-            class="content-toggle elevation2-reversed"
-            >
-            <div 
-              class="content-toggle-icon"
-              v-bind:style="{ transform: contentActive ? 'rotate(0deg)' : 'rotate(180deg)' }"
-            ></div>
-          </div>
-
-          <div 
-            class="content-actions content-inner"
-            ref="actions"
+      class="content"
+      v-bind:style="{ top: screenOffset + actionsHeight + 198 + 48 + 'px' }"
+      ref="content"
+    >
+      
+      <div class="content-header">
+        <div 
+          v-on:click="toggleContentActive"
+          class="content-toggle elevation2-reversed"
           >
+          <div 
+            class="content-toggle-icon"
+            v-bind:style="{ transform: contentActive ? 'rotate(0deg)' : 'rotate(180deg)' }"
+          ></div>
+        </div>
+
+        <div 
+          class="content-actions content-inner"
+          ref="actions"
+        >
+          <div class="action"></div>
             <div class="action"></div>
-             <div class="action"></div>
-          </div>
         </div>
+      </div>
 
-        <div class="content-inner">
-          <div class="title"></div>
-          <div class="icon"></div>
-          <div class="content-group">
-          <div v-for="n in 24" class="content-line">{{n}}</div>
-        </div>
-        </div>
-
+      <div class="content-inner">
+        <div class="title"></div>
+        <div class="icon"></div>
+        <div class="content-group">
+        <div v-for="n in 24" class="content-line">{{n}}</div>
+      </div>
       </div>
 
     </div>
@@ -81,22 +86,23 @@ export default {
       contentActive: true,
       fullScreen: false,
       screenOffset: 0,
-      number: 0,
-      scrollSnapInstance: null
+      actionsHeight: 0,
+      windowHeight: 0,
+      scrollNumber: 0,
     }
   },
   mounted() {
     this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
     this.getOffset();
-    this.$refs.outer.scrollTo( 0 , this.screenOffset );
+    this.$refs.outer.scrollTo( 0 , this.screenOffset + this.actionsHeight );
     this.initialised = true;
   },
   methods: {
     handleScrollOuter() {
 
-      this.number = this.$refs.outer.scrollTop;
+      this.scrollNumber = this.$refs.outer.scrollTop;
 
-      if (this.number >= 198 + this.screenOffset) {
+      if (this.scrollNumber >= 198 + this.screenOffset) {
         // swap to full screen condition
         this.fullScreen = true;
       } else {
@@ -104,26 +110,24 @@ export default {
         this.fullScreen = false;
       }
 
-      if (this.number == 0) {
+      if (this.scrollNumber == 0) {
         this.contentActive = false;
-      }
-      // } else if (this.number > this.screenOffset) {
+      } 
+      // else if (this.scrollNumber > this.screenOffset) {
       //   this.contentActive = true;
       // }
-
-      // TODO scroll is near offset, then animate to offset
-      // TODO when scroll hits offset then recentre map
-
-      // TODO another check to see if toggleContentActive happens
-      // toggle does smooth scroll to screenOffset
-      // Don't recentre map though...
     },
     getOffset() {
-        let distanceToElementBottom = window.innerHeight - this.$refs.actions.getBoundingClientRect().bottom;
+        let actionsRect = this.$refs.actions.getBoundingClientRect();
+        let heightActions = actionsRect.bottom - actionsRect.top;
+        let distanceToElementBottom = window.innerHeight - actionsRect.bottom;
 
+        console.log('actions height: ', heightActions);
         console.log('offset: ', distanceToElementBottom);
 
         this.screenOffset = distanceToElementBottom;
+        this.actionsHeight = heightActions;
+        this.windowHeight = window.innerHeight;
 
         // TODO re-get offset on window height change
     },
@@ -132,7 +136,7 @@ export default {
         this.$refs.outer.scrollTo( 0 , 0 );
         this.contentActive = false;
       } else {
-        this.$refs.outer.scrollTo( 0 , this.screenOffset );
+        this.$refs.outer.scrollTo( 0 , this.screenOffset + this.actionsHeight );
         this.contentActive = true;
       }
     }
@@ -161,9 +165,15 @@ export default {
     overflow: hidden;
   }
 
-  .content-wrapper {
+  .map {
+    scroll-snap-align: end;
+  }
+
+  .spacer {
     pointer-events: none;
-    position: relative;
+    position: absolute;
+    width: 100%;
+    scroll-snap-align: end;
   }
 
   .content {
@@ -211,13 +221,20 @@ export default {
     padding: 0;
   }
 
-  .content-toggle-icon {
+  /* .content-toggle-icon {
       width: 0; 
       height: 0; 
       border-left: 15px solid transparent;
       border-right: 15px solid transparent;
       border-top: 15px solid #ededed;
       transition: transform 0.3s ease;
+  } */
+
+    .content-toggle-icon {
+      width: 30px; 
+      height: 5px;
+      background-color: #ededed;
+      border-radius: 2.5px/50%;
   }
 
 

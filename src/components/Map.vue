@@ -42,6 +42,7 @@ export default {
   name: 'Map',
   props: {
     offset: Number,
+    actions: Number,
     contentActive: Boolean
   },
   data: function () {
@@ -99,20 +100,20 @@ export default {
     },
     moveToActive() {
         console.log('move to active');
-        this.moveTo(-1000 + (window.innerWidth/2), -1000 + ((198 + 48)/2));
+        this.moveTo(-1000 + (window.innerWidth/2), -1000 + 198);
     },
     moveToActiveAlt() {
         let x = -1000 + (window.innerWidth/2);
-        let y = -1000 + ((198 + 48)/2) + this.offset;
+        let y = -1000 + ((198 + 48)/2) + this.offset + this.actions;
 
         this.zoom(x, y, 1);
         this.moveTo(x, y);
 
-        console.log('move to active');
+        console.log('move to active alt');
     },
     moveToInactive() {
         let x = -1000 + (window.innerWidth/2);
-        let y = -1000 + ((198 + 48 + this.offset)/2);
+        let y = -1000 + ((198 + 48 + this.offset + this.actions)/2);
 
         this.zoom(x, y, 1);
         this.moveTo(x, y);
