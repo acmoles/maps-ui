@@ -23,7 +23,6 @@
 
     <div
       class="map-port-spacer spacer"
-      v-bind:class="{ snap: initialised }"
       v-bind:style="{ height: screenOffset + 'px', top: (height + actionsHeight) + 'px' }"
     ></div>
 
