@@ -58,6 +58,7 @@ body {
 
     position: absolute;
     width: 100%;
+    height: 100%;
     top: 0;
     bottom: 0;
     max-width: 420px;

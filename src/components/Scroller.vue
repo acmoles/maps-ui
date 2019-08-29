@@ -37,10 +37,9 @@
           v-on:click="toggleContentActive"
           class="content-toggle elevation2-reversed"
           >
-          <div 
-            class="content-toggle-icon"
-            v-bind:style="{ transform: contentActive ? 'rotate(0deg)' : 'rotate(180deg)' }"
-          ></div>
+        <ArrowToggle
+          v-bind:down="contentActive"
+        />
         </div>
 
         <div 
@@ -56,7 +55,7 @@
         <div class="title"></div>
         <div class="icon"></div>
         <div class="content-group">
-        <div v-for="n in 48" class="content-line">{{n}}</div>
+        <div v-for="n in 24" class="content-line">{{n}}</div>
       </div>
       </div>
 
@@ -67,11 +66,13 @@
 
 <script>
 import Map from './Map.vue'
+import ArrowToggle from './ArrowToggle.vue'
 
 export default {
   name: 'Scroller',
   components: {
-    Map
+    Map,
+    ArrowToggle
   },
   data: function () {
     return {
@@ -83,24 +84,32 @@ export default {
       screenOffset: 0,
       actionsHeight: 0,
       scrollNumber: 0,
+      activeScrollPosition: null,
     }
   },
   mounted() {
+    this.$nextTick(() => {
     this.width = this.$refs.outer.offsetWidth;
     this.height = this.$refs.outer.offsetHeight;
 
     console.log('width: ', this.width);
     console.log('height: ', this.height);
 
-    this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
     this.getOffset();
-    let scrollTo = (this.screenOffset + this.actionsHeight) - (198 + 48);
-    console.log('scroll to: ', scrollTo);
-    this.$refs.outer.scrollTo( 0 , scrollTo );
+    this.activeScrollPosition = (this.screenOffset + this.actionsHeight) - (198 + 48);
 
-    // Finish initialisation
-    this.$refs.map.moveToActiveInitial(this.width, this.height, this.screenOffset, this.actionsHeight);
-    this.initialised = true;
+    this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
+
+    setTimeout( () => {
+      // timeout fixes scroll being applied before dynamic dom values are in place
+      console.log('scroll to: ', this.activeScrollPosition);
+      this.$refs.outer.scrollTop = this.activeScrollPosition;
+
+      // Finish initialisation
+      this.$refs.map.moveToActiveInitial(this.width, this.height, this.screenOffset, this.actionsHeight);
+      this.initialised = true;
+    }, 0 );
+    });
   },
   methods: {
     handleScrollOuter() {
@@ -121,7 +130,8 @@ export default {
 
       if (this.scrollNumber == 0) {
         this.contentActive = false;
-      } 
+      }
+      // This feels jarring actually
       // else if (this.scrollNumber > this.screenOffset) {
       //   this.contentActive = true;
       // }
@@ -151,9 +161,8 @@ export default {
         this.$refs.outer.scrollTo( 0 , 0 );
         this.contentActive = false;
       } else {
-        let scrollTo = (this.screenOffset + this.actionsHeight) - (198 + 48);
-        console.log('scroll to: ', scrollTo);
-        this.$refs.outer.scrollTo( 0 , scrollTo );
+        console.log('scroll to: ', this.activeScrollPosition);
+        this.$refs.outer.scrollTo( 0 , this.activeScrollPosition );
         this.contentActive = true;
       }
     }
@@ -240,22 +249,6 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 0;
-  }
-
-  /* .content-toggle-icon {
-      width: 0; 
-      height: 0; 
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-top: 15px solid #ededed;
-      transition: transform 0.3s ease;
-  } */
-
-    .content-toggle-icon {
-      width: 30px; 
-      height: 5px;
-      background-color: #ededed;
-      border-radius: 2.5px/50%;
   }
 
 
