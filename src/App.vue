@@ -11,7 +11,11 @@
     <div 
     class="map-viewport"
     >
-        <div v-on:click.capture="controlsClick" class="controls"></div>
+        <div v-on:click.capture="controlsClick" class="controls">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
     </div>
 
     <Scroller
@@ -281,14 +285,25 @@ body {
   }
 
   .controls {
-    width: 30px;
-    height: 60px;
-    background-color: #9b9b9b;
+    display: flex;
+    flex-direction: column;
     position: absolute;
     top: 20px;
     right: 20px;
     pointer-events: all;
     z-index: 1;
+  }
+
+  .controls div {
+    width: 30px;
+    height: 30px;
+    background-color: #9b9b9b;
+    margin-bottom: 5px;
+    border-radius: 50%;
+  }
+
+  .controls div:nth-child(2) {
+    margin-bottom: 15px;
   }
 
 </style>

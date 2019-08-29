@@ -21,18 +21,12 @@
       v-bind:style="{ height: actionsHeight + 'px', top: height + 'px' }"
     ></div>
 
-    <div
-      class="map-port-spacer spacer"
-      v-bind:style="{ height: screenOffset + 'px', top: (height + actionsHeight) + 'px' }"
-    ></div>
-
     <div 
       class="content"
       v-bind:style="{ top: screenOffset + actionsHeight + 'px' }"
       ref="content"
     >
       
-      <div class="content-header">
         <div 
           v-on:click="toggleContentActive"
           class="content-toggle elevation2-reversed"
@@ -43,21 +37,27 @@
         </div>
 
         <div 
-          class="content-actions content-inner"
+          class="content-actions"
           ref="actions"
         >
-          <div class="action"></div>
-            <div class="action"></div>
+          <div class="directions-title">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div class="directions-action"></div>
         </div>
-      </div>
 
       <div class="content-inner">
-        <div class="title"></div>
-        <div class="icon"></div>
         <div class="content-group">
-        <div v-for="n in 24" class="content-line">{{n}}</div>
+        <div v-for="n in 6" class="content-line">
+          <div></div>
+          <div>{{n}}</div>
+          <div v-bind:style="{ height: (2 % n)*50 + 'px', display: 4 % n === 0 ? 'none' : 'flex' }"></div>
+        </div>
       </div>
       </div>
+      <div class="content-footer"></div>
 
     </div>
       
@@ -88,7 +88,6 @@ export default {
     }
   },
   mounted() {
-    this.$nextTick(() => {
     this.width = this.$refs.outer.offsetWidth;
     this.height = this.$refs.outer.offsetHeight;
 
@@ -98,17 +97,17 @@ export default {
     this.getOffset();
     this.activeScrollPosition = (this.screenOffset + this.actionsHeight) - (198 + 48);
 
+    this.$nextTick(() => {
+    // Operate after dom updates with dynamic values - since scroll position depends on it
     this.$refs.outer.addEventListener('scroll', this.handleScrollOuter);
 
-    setTimeout( () => {
-      // timeout fixes scroll being applied before dynamic dom values are in place
-      console.log('scroll to: ', this.activeScrollPosition);
-      this.$refs.outer.scrollTop = this.activeScrollPosition;
+    console.log('scroll to: ', this.activeScrollPosition);
+    this.$refs.outer.scrollTo( 0 , this.activeScrollPosition );
 
-      // Finish initialisation
-      this.$refs.map.moveToActiveInitial(this.width, this.height, this.screenOffset, this.actionsHeight);
-      this.initialised = true;
-    }, 0 );
+    // Finish initialisation
+    this.$refs.map.moveToActiveInitial(this.width, this.height, this.screenOffset, this.actionsHeight);
+    this.initialised = true;
+
     });
   },
   methods: {
@@ -214,32 +213,48 @@ export default {
     z-index: 2;
   }
 
-  .content-inner {
-    padding: 20px;
-  }
-
-  /* .content-inactive {
-    transform: translateY(100%);
-  } */
-
 
 
 
   .content-actions {
+    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #ededed;
   }
 
-  .action {
-    width: 100px;
-    height: 30px;
+  .directions-title {
+    flex-grow: 1;
+  }
+
+  .directions-action {
+    flex-grow: 0;
+    height: 70px;
+    width: 70px;
+    align-self: flex-end;
+    background-color: #ededed;
+    margin-left: 40px;
+  }
+
+  .directions-title div {
+    height: 16px;
     background-color: #ededed;
   }
 
-  .action:first-child {
-    width: 160px;
+  .directions-title div:not(:last-child) {
+      margin-bottom: 5px
+  }
+
+  .directions-title div:last-child {
+      width: 80%;
+  }
+
+  .directions-title div:first-child {
+    height: 36px;
+    background-color: #ededed;
+    width: 200px;
+    margin-bottom: 10px
   }
 
   .content-toggle {
@@ -274,18 +289,41 @@ export default {
     background-color: #fff;
   }
 
-  .content-line {
-    height: 20px;
-    background-color: #ededed;
-    margin-bottom: 15px;
-    color: #ededed;
+  .content-inner {
+    padding: 20px;
+    padding-top: 10px;
   }
 
-  .title {
-    height: 30px;
+  .content-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-bottom: 20px;
+  }
+
+  .content-line div {
+    flex-grow: 1;
+    height: 15px;
+    color: #ededed;
     background-color: #ededed;
-    width: 200px;
-    margin-bottom: 20px
+    margin-top: 20px;
+  }
+
+  .content-line div:first-child {
+    flex-grow:0;
+    width: 15px;
+    margin-right: 15px;
+  }
+
+  .content-line div:last-child {
+    width: 100%;
+    margin-left: 30px;
+  }
+
+  .content-footer {
+    width: 100%;
+    height: 45px;
+    background-color: #ededed;
   }
 
 </style>
