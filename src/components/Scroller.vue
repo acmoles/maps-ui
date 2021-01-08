@@ -137,7 +137,7 @@ export default {
   }
 
   .outer {
-    overflow: scroll;
+    overflow: auto;
     position: absolute;
     top: 0;
     left: 0;
